@@ -92,7 +92,6 @@ schemaFromGqlToPursWithCache :: InputOptions -> GqlInput -> Aff (Either ParseErr
 schemaFromGqlToPursWithCache opts { schema, moduleName } = go opts.cache
   where
   go Nothing = pure $ schemaFromGqlToPurs opts { schema, moduleName }
-
   go (Just { get, set }) = do
     jsonMay <- get schema
     eVal <- case jsonMay >>= decodeJson >>> hush of
@@ -145,7 +144,7 @@ gqlToPursMainSchemaCode { externalTypes, fieldTypeOverrides, useNewtypesForRecor
     fold $ nub
       $ toImport mainCode (Array.fromFoldable externalTypes)
       <> toImport mainCode (Array.fromFoldable $ fold fieldTypeOverrides)
-      <> toImport mainCode [ {moduleName: "Data.Argonaut.Core"} ]
+      <> toImport mainCode [ { moduleName: "Data.Argonaut.Core" } ]
 
   mainCode = unwrap doc # mapMaybe definitionToPurs # removeDuplicateDefinitions # intercalate "\n\n"
 
@@ -477,4 +476,6 @@ typeName str = case pascalCase str of
   "Jsonb" -> "Json"
   "Timestamp" -> "DateTime"
   "Timestamptz" -> "DateTime"
+  "ID" -> "String"
+  "Boolean" -> "Boolean"
   s -> s
